@@ -41,6 +41,11 @@ def configure_logging(debug: bool = False) -> None:
     root_logger.addHandler(handler)
     root_logger.setLevel(logging.DEBUG if debug else logging.INFO)
 
+    # disable multipart logger
+    multipart_logger = logging.getLogger("python_multipart.multipart")
+    multipart_logger.setLevel(logging.ERROR)
+    multipart_logger.addHandler(handler)
+
     # Capture warnings
     logging.captureWarnings(True)
 
