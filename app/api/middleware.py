@@ -21,7 +21,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
                 method=request.method,
                 path=request.url.path,
                 status_code=response.status_code,
-                process_time=f"{process_time:.2f}ms",
+                process_time=process_time,
                 client_ip=request.client.host if request.client else None,
                 user_agent=request.headers.get("user-agent"),
             )

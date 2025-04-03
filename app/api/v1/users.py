@@ -11,7 +11,16 @@ from app.services.user import UserService
 router = APIRouter()
 
 
-@router.get("/", response_model=List[User])
+@router.get(
+    "/",
+    response_model=List[User],
+    responses={
+        200: {"description": "List of users"},
+        401: {"description": "Missing or invalid token"},
+        403: {"description": "Not enough permissions"},
+    },
+    openapi_extra={"security": [{"Bearer": []}]},
+)
 def read_users(
     skip: int = 0,
     limit: int = 100,
@@ -22,7 +31,17 @@ def read_users(
     return user_service.get_users(skip=skip, limit=limit)
 
 
-@router.get("/{user_id}", response_model=User)
+@router.get(
+    "/{user_id}",
+    response_model=User,
+    responses={
+        200: {"description": "User details"},
+        401: {"description": "Missing or invalid token"},
+        403: {"description": "Not enough permissions"},
+        404: {"description": "User not found"},
+    },
+    openapi_extra={"security": [{"Bearer": []}]},
+)
 def read_user(
     user_id: int,
     db: Session = Depends(get_db),
@@ -35,7 +54,17 @@ def read_user(
     return db_user
 
 
-@router.put("/{user_id}", response_model=User)
+@router.put(
+    "/{user_id}",
+    response_model=User,
+    responses={
+        200: {"description": "Updated user"},
+        401: {"description": "Missing or invalid token"},
+        403: {"description": "Not enough permissions"},
+        404: {"description": "User not found"},
+    },
+    openapi_extra={"security": [{"Bearer": []}]},
+)
 def update_user(
     user_id: int,
     user: UserUpdate,
@@ -49,7 +78,17 @@ def update_user(
     return db_user
 
 
-@router.delete("/{user_id}", response_model=User)
+@router.delete(
+    "/{user_id}",
+    response_model=User,
+    responses={
+        200: {"description": "Deleted user"},
+        401: {"description": "Missing or invalid token"},
+        403: {"description": "Not enough permissions"},
+        404: {"description": "User not found"},
+    },
+    openapi_extra={"security": [{"Bearer": []}]},
+)
 def delete_user(
     user_id: int,
     db: Session = Depends(get_db),
