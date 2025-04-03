@@ -1,0 +1,19 @@
+[project]
+name = "auth-gran"
+version = "0.1.0"
+description = "JWT Authentication API"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "granian>=2.2.1",
+    "fastapi",
+    "granian",
+    "python-jose[cryptography]",
+    "passlib[bcrypt]",
+    "sqlalchemy",
+    "pydantic",
+    "pytest",
+    "pydantic-settings>=2.8.1",
+    "email-validator>=2.2.0",
+    "python-multipart>=0.0.20",
+]
