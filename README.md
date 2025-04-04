@@ -4,7 +4,12 @@
 pip install uv
 
 uv sync
+
+# run with graniar
 uv run granian --interface asgi app.main:app
+
+# run with uvicorn
+uv run uvicorn --no-access-log app.main:app
 ```
 
 ## Debug with DAP

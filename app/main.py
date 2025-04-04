@@ -19,8 +19,9 @@ async def lifespan(_: FastAPI):
 app = FastAPI(
     title=settings.PROJECT_NAME,
     lifespan=lifespan,
-    middleware=[Middleware(AccessLoggerMiddleware)],
+    middleware=[Middleware(AccessLoggerMiddleware)],  # type: ignore
 )
+
 
 configure_logging(debug=settings.DEBUG)
 
