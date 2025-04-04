@@ -57,8 +57,12 @@ def configure_logging(debug: bool = False) -> None:
     handler = logging.StreamHandler(sys.stdout)
     handler.setFormatter(logging.Formatter("%(message)s"))
 
+    # handler_file = logging.FileHandler("app.log")
+    # handler_file.setFormatter(logging.Formatter("%(message)s"))
+
     root_logger = logging.getLogger()
     root_logger.addHandler(handler)
+    # root_logger.addHandler(handler_file)
     root_logger.setLevel(logging.DEBUG if debug else logging.INFO)
 
     # disable multipart logger

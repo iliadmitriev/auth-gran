@@ -12,13 +12,14 @@ from asgiref.typing import (
     HTTPScope,
 )
 
+from app.config import settings
 from app.core.logging import get_logger
 
 
 class AccessInfo(TypedDict, total=False):
     response: ASGISendEvent
     response_body: ASGISendEvent
-    request: ASGIReceiveEvent
+    request_body: ASGIReceiveEvent
     start_time: float
     end_time: float
     status: int
@@ -69,7 +70,7 @@ class AccessLoggerMiddleware:
         async def inner_receive() -> ASGIReceiveEvent:
             message = await receive()
             if message["type"] == "http.request":
-                log_info["request"] = message
+                log_info["request_body"] = message
             return message
 
         try:
@@ -137,13 +138,17 @@ class AccessLogAtoms(dict[str, object]):
                 "scheme": protocol,
                 "status_code": status,
                 "request_time_ms": request_time * 1000,
-                "response_body": info.get("response_body", {})
-                .get("body", b"")
-                .decode(),
-                "request_body": info.get("request", {}).get("body", b"").decode(),
                 "pid": os.getpid(),
             }
         )
+
+        if settings.settings.DEBUG:
+            self["request_body"] = (
+                info.get("request_body", {}).get("body", b"").decode()
+            )
+            self["response_body"] = (
+                info.get("response_body", {}).get("body", b"").decode()
+            )
 
     def __getitem__(self, key: str) -> object:
         try:
