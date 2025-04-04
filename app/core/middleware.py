@@ -81,7 +81,6 @@ class AccessLoggerMiddleware:
             raise ex
         finally:
             log_info["end_time"] = time.monotonic()
-            await asyncio.sleep(2)
             await self.logger.ainfo("request", **AccessLogAtoms(scope, log_info))
 
 
