@@ -1,11 +1,12 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware import Middleware
 
 from app.api.middleware import LoggingMiddleware
 from app.api.v1 import auth, users
 from app.config.settings import settings
-from app.core.logging import configure_logging
+from app.core.logging import AccessLoggerMiddleware, configure_logging
 from app.db.session import init_db
 
 
@@ -15,7 +16,11 @@ async def lifespan(_: FastAPI):
     yield
 
 
-app = FastAPI(lifespan=lifespan, title=settings.PROJECT_NAME)
+app = FastAPI(
+    title=settings.PROJECT_NAME,
+    lifespan=lifespan,
+    middleware=[Middleware(AccessLoggerMiddleware)],
+)
 
 configure_logging(debug=settings.DEBUG)
 

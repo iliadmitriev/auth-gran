@@ -16,6 +16,7 @@ dependencies = [
     "python-multipart>=0.0.20",
     "structlog>=25.2.0",
     "granian>=2.2.1",
+    "asgiref>=3.8.1",
 ]
 
 [dependency-groups]
