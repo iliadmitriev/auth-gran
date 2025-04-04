@@ -6,7 +6,8 @@ from fastapi.middleware import Middleware
 from app.api.middleware import LoggingMiddleware
 from app.api.v1 import auth, users
 from app.config.settings import settings
-from app.core.logging import AccessLoggerMiddleware, configure_logging
+from app.core.logging import configure_logging
+from app.core.middleware import AccessLoggerMiddleware
 from app.db.session import init_db
 
 

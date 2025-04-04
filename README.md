@@ -34,3 +34,13 @@ set TOKEN $(xh -f :8000/v1/auth/login username=idm@example.com password=secret |
 # Get users
 xh -v -A bearer -a $TOKEN :8000/v1/users/
 ```
+
+### With SSL
+
+```bash
+# server
+uv run uvicorn --no-access-log --ssl-keyfile ssl/localhost.key --ssl-certfile ssl/localhost.pem --ssl-cert-reqs 2 --ssl-ca-certs ssl/root.pem app.main:app
+
+# client
+xh -v -f https://localhost:8000/v1/auth/login username=idm@example.com password=secret --verify ssl/root.pem --cert ssl/client.pem --cert-key ssl/client.key
+```

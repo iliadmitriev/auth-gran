@@ -1,3 +1,4 @@
+import asyncio
 import time
 
 from fastapi import Request
@@ -16,7 +17,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
 
         # Skip logging for health checks
         if request.url.path != "/health":
-            logger.info(
+            await logger.adebug(
                 "HTTP request",
                 method=request.method,
                 path=request.url.path,

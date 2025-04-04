@@ -1,101 +1,32 @@
 import logging
-import os
 import sys
-import time
-from typing import Any, TypedDict
+from typing import Any
 
 import structlog
-from asgiref.typing import (
-    ASGI3Application,
-    ASGIReceiveCallable,
-    ASGISendCallable,
-    ASGISendEvent,
-    HTTPScope,
-)
-
-
-class AccessInfo(TypedDict, total=False):
-    response: ASGISendEvent
-    start_time: float
-    end_time: float
-    status: int
-
-
-class AccessLoggerMiddleware:
-    def __init__(
-        self,
-        app: ASGI3Application,
-        logger: structlog.BoundLogger | None = None,
-    ) -> None:
-        self.app = app
-        if logger is None:
-            logger = get_logger("access")
-
-        self.logger = logger
-
-    async def __call__(
-        self, scope: HTTPScope, receive: ASGIReceiveCallable, send: ASGISendCallable
-    ) -> None:
-        if scope["type"] != "http":
-            return await self.app(scope, receive, send)
-
-        log_info = AccessInfo()
-
-        async def inner_send(message: ASGISendEvent) -> None:
-            if message["type"] == "http.response.start":
-                log_info["response"] = message
-            await send(message)
-
-        try:
-            log_info["start_time"] = time.monotonic()
-            await self.app(scope, receive, inner_send)
-        except Exception as ex:
-            log_info["status"] = 500
-            raise ex
-        finally:
-            log_info["end_time"] = time.monotonic()
-            await self.logger.ainfo("request", **AccessLogAtoms(scope, log_info))
-
-
-class AccessLogAtoms(dict[str, object]):
-    def __init__(self, scope: HTTPScope, info: AccessInfo) -> None:
-        for name, value in scope["headers"]:
-            key = name.decode("latin1").lower().replace("-", "_")
-            self[f"{key}_input"] = value.decode("latin1")
-
-        for name, value in info.get("response", {}).get("headers", []):
-            key = name.decode("latin1").lower().replace("-", "_")
-            self[f"{key}_output"] = value.decode("latin1")
-
-        protocol = f"HTTP/{scope['http_version']}"
-
-        status = info.get("response", {}).get("status")
-
-        request_time = info.get("end_time", 0) - info.get("start_time", 0)
-        client_addr = get_client_addr(scope)
-        self.update(
-            {
-                "client_addr": client_addr,
-                "timestamp": time.strftime("[%d/%b/%Y:%H:%M:%S %z]"),
-                "method": scope["method"],
-                "path": scope["path"],
-                "query": scope["query_string"].decode(),
-                "scheme": protocol,
-                "status_code": status,
-                "request_time_ms": request_time * 1000,
-                "pid": os.getpid(),
-            }
-        )
-
-    def __getitem__(self, key: str) -> object:
-        try:
-            return super().__getitem__(key)
-        except KeyError:
-            return "-"
 
 
 def configure_logging(debug: bool = False) -> None:
-    """Configure structlog with console rendering."""
+    """Configures the logging system for the application.
+
+    This function sets up the logging configuration, including the log level, log format,
+    and log file (if specified).
+
+    Args:
+        log_level (str): The log level to use (e.g. DEBUG, INFO, WARNING, ERROR, CRITICAL).
+        log_format (str): The format to use for log messages.
+        log_file (str, optional): The file to write log messages to. If not specified, log messages will be written to the console.
+
+    Returns:
+        None
+
+    Raises:
+        ValueError: If the log level or log format is invalid.
+
+    Notes:
+        This function should be called early in the application's startup process to ensure that logging is properly configured.
+        The log level and log format can be customized to suit the needs of the application.
+        If a log file is specified, log messages will be written to that file instead of the console.
+    """
     timestamper = structlog.processors.TimeStamper(fmt="iso")
 
     shared_processors = [
@@ -148,9 +79,3 @@ def configure_logging(debug: bool = False) -> None:
 def get_logger(name: str | None = None) -> Any:
     """Get a structlog logger instance."""
     return structlog.get_logger(name)
-
-
-def get_client_addr(scope: HTTPScope):
-    if scope["client"] is None:
-        return "-"  # pragma: no cover
-    return f"{scope['client'][0]}:{scope['client'][1]}"
