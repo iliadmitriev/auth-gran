@@ -35,4 +35,6 @@ class LoggingMiddleware(BaseHTTPMiddleware):
                 user_agent=request.headers.get("user-agent"),
             )
 
+        response.headers["x-request-id"] = request_id
+
         return response
