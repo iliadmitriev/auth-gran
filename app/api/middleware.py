@@ -1,5 +1,7 @@
 import time
+from uuid import uuid4
 
+import structlog
 from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
 
@@ -10,6 +12,13 @@ logger = get_logger("http")
 
 class LoggingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
+        request_id = request.headers.get("x-request-id") or str(uuid4())
+
+        structlog.contextvars.clear_contextvars()
+        structlog.contextvars.bind_contextvars(
+            request_id=request_id,
+        )
+
         start_time = time.time()
         response = await call_next(request)
         process_time = (time.time() - start_time) * 1000
