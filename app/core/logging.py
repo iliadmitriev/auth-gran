@@ -71,10 +71,14 @@ def configure_logging(debug: bool = False) -> None:
     multipart_logger.addHandler(handler)
 
     # uvcorn loggers erase handlers
-    uvicorn_logger = logging.getLogger("uvcorn.access")
-    uvicorn_logger.handlers = []
-    uvicorn_error = logging.getLogger("uvicorn.error")
-    uvicorn_error.handlers = []
+    # uvicorn_logger = logging.getLogger("uvcorn")
+    # uvicorn_logger.addHandler(handler)
+    #
+    # uvicorn_access = logging.getLogger("uvcorn.access")
+    # uvicorn_access.addHandler(handler)
+    #
+    # uvicorn_error = logging.getLogger("uvicorn.error")
+    # uvicorn_error.addHandler(handler)
 
     # Capture warnings
     logging.captureWarnings(True)
