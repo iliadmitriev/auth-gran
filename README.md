@@ -24,7 +24,7 @@ uv run --with debugpy debugpy --listen 127.0.0.1:5678 -m granian --interface asg
 
 ```bash
 # Register
-xh :8000/v1/auth/register email=idm@example.com password=secret
+xh -v :8000/v1/auth/register email=idm@example.com password=secret
 
 
 # Login
