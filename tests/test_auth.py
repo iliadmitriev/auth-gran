@@ -2,7 +2,7 @@ import os
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from sqlalchemy import StaticPool, create_engine
 from sqlalchemy.orm import sessionmaker
 
 from app.core.security import get_password_hash
@@ -12,12 +12,12 @@ from app.db.session import get_db
 from app.main import app
 
 
-@pytest.fixture(name="db_path")
-def db_path(tmpdir):
-    return tmpdir / "test.db"
+@pytest.fixture(name="db_path", scope="session")
+def db_path():
+    return ":memory:"
 
 
-@pytest.fixture(name="db")
+@pytest.fixture(name="db", scope="session")
 def db_fix(db_path):
     db_uri = f"sqlite:///{db_path}"
 
@@ -25,9 +25,8 @@ def db_fix(db_path):
         db_uri,
         connect_args={"check_same_thread": False},
         echo=True,
+        poolclass=StaticPool,
     )
-
-    Base.metadata.create_all(bind=engine)
 
     TestingSessionLocal = sessionmaker(
         autocommit=False,
@@ -35,6 +34,7 @@ def db_fix(db_path):
         bind=engine,
     )
     db = TestingSessionLocal()
+    Base.metadata.create_all(bind=db.connection().engine)
 
     yield db
 
@@ -42,12 +42,9 @@ def db_fix(db_path):
     engine.dispose()
 
 
-@pytest.fixture(name="client")
+@pytest.fixture(name="client", scope="session")
 def client_fix(db):
-    def get_db_override():
-        yield db
-
-    app.dependency_overrides[get_db] = get_db_override
+    app.dependency_overrides[get_db] = lambda: db
 
     client = TestClient(app)
 
@@ -56,7 +53,7 @@ def client_fix(db):
     client.close()
 
 
-@pytest.fixture(name="user")
+@pytest.fixture(name="user", scope="session")
 def user_fix(db):
     user_data = {"email": "test@example.com", "password": "testpass"}
 
@@ -73,7 +70,7 @@ def user_fix(db):
     return user_data
 
 
-@pytest.fixture(name="admin")
+@pytest.fixture(name="admin", scope="session")
 def admin_fix(db):
     admin_data = {"email": "admin@example.com", "password": "adminpass"}
 
