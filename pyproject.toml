@@ -13,7 +13,7 @@ dependencies = [
     "pytest",
     "pydantic-settings>=2.14.1",
     "email-validator>=2.2.0",
-    "python-multipart>=0.0.28",
+    "python-multipart>=0.0.29",
     "structlog>=25.2.0",
     "granian>=2.7.4",
     "asgiref>=3.8.1",
