@@ -11,7 +11,7 @@ dependencies = [
     "sqlalchemy",
     "pydantic",
     "pytest",
-    "pydantic-settings>=2.14.1",
+    "pydantic-settings>=2.14.2",
     "email-validator>=2.2.0",
     "python-multipart>=0.0.32",
     "structlog>=26.1.0",
