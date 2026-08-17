@@ -17,7 +17,7 @@ dependencies = [
     "structlog>=26.1.0",
     "granian>=2.8.1",
     "asgiref>=3.12.1",
-    "uvicorn>=0.52.1",
+    "uvicorn>=0.52.3",
     "uvloop>=0.21.0",
 ]
 
